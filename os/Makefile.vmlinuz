@@ -1,0 +1,76 @@
+include $(JMK_ROOT)/jmk/old/util.mak
+
+# This is the default 'make' commands. Override it if needed.
+KERNEL_IMAGE_TARGET=vmlinux
+MAKE_IMAGE_COMMAND=$(MAKE) -C $(JMK_ROOT)/pkg/kernel/linux/boot IMG_NAME=$(RG_PROD_STR) $(OPENRG_IMG)
+
+JMK_CLEAN+=$(OPENRG_IMG) \
+  $(wildcard vmlinuz* vmlinux* *.o *.bin *.strip) \
+  $(OPENRG_PROD) *.inc
+
+VPATH=$(CURDIR)
+
+.PHONY : make_image
+
+ifneq ($(CONFIG_RG_686),)
+  KERNEL_IMAGE_TARGET=bzImage
+  MAKE_IMAGE_COMMAND=cp -f $(CURDIR)/kernel/arch/x86/boot/bzImage $(OPENRG_IMG)
+endif
+
+ifneq ($(CONFIG_RG_UML),)
+  MAKE_IMAGE_COMMAND=$(MAKE) -C $(JMK_ROOT)/vendor/jungo/uml/boot $(OPENRG_IMG)
+endif
+
+ifeq ($(CONFIG_ARM),y)
+  # For ARM, the default image format is zImage
+  KERNEL_IMAGE_TARGET=zImage
+  # If uImage is requested, use kernel's uImage target.
+  # The exception is Avalanche, which needs a special uImage build (using
+  # vmlinux instead of zImage) via pkg/boot/u-boot.
+  ifeq ($(CONFIG_BOOTLDR_UBOOT)-$(CONFIG_ARCH_AVALANCHE),y-)
+    KERNEL_IMAGE_TARGET=uImage
+  endif
+  MAKE_IMAGE_COMMAND=cp -f $(KERNEL_DIR)/arch/arm/boot/$(KERNEL_IMAGE_TARGET) $(OPENRG_IMG)
+endif
+
+ifeq ($(CONFIG_BROADCOM_9636X)$(CONFIG_BROADCOM_9636X_3X)-$(CONFIG_RG_RGLOADER),y-y)
+  ifndef CONFIG_RG_MAINFS_IN_FLASH
+    ifeq ($(CONFIG_HW_BCM963168AC5),y)
+      BROADCOM_9636X_BOARD=bcm963168ac5
+    endif
+    include $(JMK_ROOT)/vendor/broadcom/envir.subdirs.mak
+    MAKE_IMAGE_COMMAND=$(MAKE) -C $(BCM9636X_ROOT)/$(BROADCOM_9636X_BOARD)/boot $(OPENRG_IMG)
+  endif
+endif
+
+ifdef CONFIG_BOOTLDR_UBOOT
+  ifndef CONFIG_RG_MAINFS_IN_FLASH
+    ifneq ($(KERNEL_IMAGE_TARGET),uImage)
+      # Use pkg/boot/u-boot uImage build procedure, unless the kernel was
+      # responsible for preparing the uImage.
+      MAKE_IMAGE_COMMAND=$(MAKE) -C $(JMK_ROOT)/pkg/boot/u-boot $(OPENRG_IMG)
+    endif
+  endif
+endif
+
+ifdef CONFIG_SYS_SUPPORTS_ZBOOT
+  KERNEL_IMAGE_TARGET=vmlinuz.bin
+  MAKE_IMAGE_COMMAND=cp -f $(KERNEL_DIR)/vmlinuz.bin $(OPENRG_IMG)
+
+  ifneq ($(CONFIG_BCM63XX),)
+    export VMLINUZ_LOAD_ADDRESS := 0xffffffff80c00000
+  endif
+endif
+
+make_kernel:
+	$(MAKE) -C $(KERNEL_DIR) $(KERNEL_IMAGE_TARGET)
+
+make_image: make_kernel
+	$(MAKE_IMAGE_COMMAND)
+
+$(OPENRG_IMG): make_kernel
+
+ifndef CONFIG_RG_GPL
+$(OPENRG_IMG): make_image 
+endif
+
