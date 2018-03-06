@@ -1,0 +1,57 @@
+ifndef JMKE_ENV_INCLUDED
+  JMK_ROOT=../../
+  include $(JMK_ROOT)/jmk/env_root.mak
+endif
+
+ifdef CONFIG_BCM947XX
+JMK_LEGACY_SUBDIRS+=bcm947
+JMK_LINK_DIRS+=bcm947
+JMK_JPKG_EXPORTED_DIR_SRC+=bcm947
+endif
+
+ifdef CONFIG_BCM963XX
+JMK_LEGACY_SUBDIRS+=bcm963xx
+JMK_LINK_DIRS+=bcm963xx
+JMK_JPKG_EXPORTED_DIR_SRC+=bcm963xx
+endif
+
+ifdef CONFIG_BROADCOM_9636X
+  ifdef CONFIG_RG_JPKG_SRC
+    JMK_LEGACY_SUBDIRS+=bcm9636x_4.06 bcm9636x 
+  else
+    ifdef CONFIG_BROADCOM_BCM9636X_BSP_4_06
+      JMK_LEGACY_SUBDIRS+=bcm9636x_4.06
+    else
+      JMK_LEGACY_SUBDIRS+=bcm9636x
+    endif
+  endif
+endif
+
+ifdef CONFIG_BROADCOM_9636X_3X
+  JMK_SUBDIRS+=bcm9636x-3.x
+endif
+
+ifdef CONFIG_SIBYTE_SB1250
+JMK_LEGACY_SUBDIRS+=bcm91125e
+JMK_JPKG_EXPORTED_DIR_SRC+=bcm91125e
+endif
+
+ifdef CONFIG_HW_SWITCH_BCM53125
+JMK_LEGACY_SUBDIRS+=bcm53125
+endif
+
+ifdef CONFIG_BCM4318
+  ifdef CONFIG_BCM43XX_MULTIPLE_BSSID
+    JMK_LEGACY_SUBDIRS+=bcm43xx/src
+    JMK_LINK_DIRS+=bcm43xx/src
+    # the multiple BSSID must never be exported
+    #JMK_JPKG_EXPORTED_DIR_SRC+=bcm43xx/src
+  else
+    JMK_LEGACY_SUBDIRS+=bcm43xx
+    JMK_JPKG_EXPORTED_DIR_SRC+=bcm43xx
+  endif
+endif
+
+JMK_LEGACY_SUBDIRS+=rg
+
+$(call JMKE_INCLUDE_RULES)

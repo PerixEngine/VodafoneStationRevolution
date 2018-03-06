@@ -1,0 +1,10 @@
+ifndef JMKE_ENV_INCLUDED
+  JMK_ROOT=../../..
+  include $(JMK_ROOT)/jmk/env_root.mak
+endif
+
+JMK_SUBDIRS+=$(if $(CONFIG_SO380000), so380000)
+JMK_SUBDIRS+=$(if $(CONFIG_HIMAX_HUAWEI_LCD), hx8347b)
+JMK_SUBDIRS+=$(if $(CONFIG_HW_BCM963168_HUAWEI), vox25_it)
+
+$(call JMKE_INCLUDE_RULES)
