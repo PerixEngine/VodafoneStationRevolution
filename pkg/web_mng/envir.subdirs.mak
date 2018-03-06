@@ -1,0 +1,5 @@
+JMK_LOG_ENTITY=LOG_ENTITY_WBM
+
+ifndef CONFIG_RG_FILES_ON_HOST
+  RAMDISK_2_DLM=vodafonewbm
+endif

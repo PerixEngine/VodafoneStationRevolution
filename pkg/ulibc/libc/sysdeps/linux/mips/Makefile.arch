@@ -1,0 +1,22 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+CSRC := \
+	__longjmp.c  brk.c setjmp_aux.c mmap.c __syscall_error.c \
+	cacheflush.c pread_write.c sysmips.c _test_and_set.c
+
+SSRC := bsd-_setjmp.S bsd-setjmp.S setjmp.S syscall.S pipe.S
+
+ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CSRC += sigaction.c
+SSRC += vfork.S clone.S
+endif
+
+ARCH_HEADERS := sgidefs.h
+# regdef.h
+
+include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch

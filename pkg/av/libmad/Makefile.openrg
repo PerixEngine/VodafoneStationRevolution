@@ -1,0 +1,33 @@
+JMK_ROOT=../../../
+include $(JMK_ROOT)/envir.mak
+
+JMK_ARCHCONFIG_FIRST_TASKS+= mad_config 
+
+JMK_FIRST_TASKS+= mad_make
+
+JMK_FIRST_CLEAN+= mad_clean
+
+DISTCLEAN_FIRST_TASK+= mad_distclean
+
+JMK_RAMDISK_LIB_FILES+= libmad.so.0.2.1
+
+include $(JMKE_MK)
+
+mad_config:
+	./configure
+
+mad_make: actual_make $(JMK_RAMDISK_LIB_FILES)
+
+actual_make:
+	make -f Makefile
+
+$(JMK_RAMDISK_LIB_FILES):
+	$(JMKE_CP) ./.libs/$@ ./$@
+
+mad_clean:
+	rm -f $(JMK_RAMDISK_LIB_FILES)
+	make -f Makefile clean
+
+mad_distclean: mad_clean
+	make -f Makefile distclean
+

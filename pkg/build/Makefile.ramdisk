@@ -1,0 +1,22 @@
+# Do we want to move this file to rg/jmk/?
+
+
+ifdef IN_RGSRC_ROOT
+  ifeq ($(JMKE_DOING_MAKE_CONFIG),)
+    # ramdisk command implementation that needs to be executed only once from
+    # the root makefile.
+    clean_ramdisk_dir:
+	rm -rf $(DISK_IMAGE_DIR)
+
+    make_ramdisk_img: $(JMKE_BUILDDIR)/pkg/build/make_ramdisk.sh
+    ifdef CONFIG_RG_MKLIBS
+	perl $(JMK_ROOT)/pkg/build/gc.pl 
+    endif
+    ifdef CONFIG_RG_OS_LINUX
+	$(JMKE_BUILDDIR)/pkg/build/make_ramdisk.sh
+    endif
+    ifdef CONFIG_RG_JNET_SERVER
+	$(JMKE_BUILDDIR)/pkg/build/make_packages.sh
+    endif
+  endif
+endif

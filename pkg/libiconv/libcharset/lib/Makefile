@@ -1,0 +1,18 @@
+ifndef JMKE_ENV_INCLUDED
+  JMK_ROOT=../../../..
+  include $(JMK_ROOT)/jmk/env_root.mak
+endif
+ 
+LIBCHARSET_CFLAGS+=-DLIBDIR=\"/lib\"
+LIBCHARSET_CFLAGS+=-I$(JMKE_PWD_BUILD)/../.. -I$(JMKE_PWD_BUILD)/../include 
+LIBCHARSET_CFLAGS+=-I$(JMKE_PWD_BUILD)/../../lib
+
+JMK_CFLAGS+=$(LIBCHARSET_CFLAGS)
+JMK_LOCAL_CFLAGS+=$(LIBCHARSET_CFLAGS)
+
+JMK_O_TARGET=lcharset.o
+JMK_LOCAL_O_TARGET=local_lcharset.o
+JMK_O_OBJS_$(JMK_O_TARGET)=localcharset.o
+JMK_O_OBJS_$(JMK_LOCAL_O_TARGET)=localcharset.o
+
+$(call JMKE_INCLUDE_RULES)

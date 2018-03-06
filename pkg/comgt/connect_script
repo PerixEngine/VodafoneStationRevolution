@@ -1,0 +1,25 @@
+  opengt
+  set com 115200n81
+  set senddelay 0.05
+  let c=3
+
+:retry
+  send "AT^m"
+  waitfor 3 "OK"
+  if % = 0 goto doconnect
+  dec c
+  if c > 0 goto retry
+  print "comgt: Modem does not respond. Continue anyway.\n"
+
+:doconnect
+  send "ATDT"+$env("COMGTDIALNUMBER")+"^m"
+  waitfor 20 "CONNECT"
+  if % = -1 goto error
+  if % = 0 goto connected
+
+:error 
+  print " *** ERROR ***\n"
+  exit 1
+
+:connected
+  print " *** CONNECTED ***\n"
